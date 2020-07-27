@@ -16,35 +16,33 @@ const createEmployeeRecords = (arr) => {
     return arr.map(employee => createEmployeeRecord(employee))
 }
 
-const createTimeInEvent = (date) => {    
-    let dateSplit = date.split(' ')
-    let timeIn = {
+let createTimeInEvent = function(timeStamp){    
+    let [date, hour] = timeStamp.split(' ')
+
+    this.timeInEvents.push({
         type: "TimeIn",
-        date: dateSplit[0],
-        hour: parseInt(dateSplit[1])
-    }
-    console.log(this)
-    let updated = this.timeInEvents.push(timeIn)
-    return updated
+        date: date,
+        hour: parseInt(hour, 10)
+    })
+    return this
 }
 
-
-const createTimeOutEvent = (employee, date) => {
+const createTimeOutEvent = function(date){
     let dateSplit = date.split(' ')
-    let timeOut = {
+
+    this.timeOutEvents.push({
         type: "TimeOut",
         date: dateSplit[0],
         hour: parseInt(dateSplit[1])
-    }
-    employee.timeOutEvents.push(timeOut)
+    })
 
-    return employee
+    return this
 }
 
-const hoursWorkedOnDate = (employee, date) => {
+const hoursWorkedOnDate = function(date){
     
-    let timeIn = employee.timeInEvents.find(event => event.date === date).hour
-    let timeOut = employee.timeOutEvents.find(event => event.date === date).hour
+    let timeIn = this.timeInEvents.find(event => event.date === date).hour
+    let timeOut = this.timeOutEvents.find(event => event.date === date).hour
 
     if (timeIn && timeOut) {
         return (timeOut - timeIn) / 100
@@ -55,27 +53,10 @@ const hoursWorkedOnDate = (employee, date) => {
     
 }
 
-const wagesEarnedOnDate = (employee, date) => {
-    let timeIn = employee.timeInEvents.find(event => event.date === date).hour
-    let timeOut = employee.timeOutEvents.find(event => event.date === date).hour
-
-    let hoursWorked = (timeOut - timeIn) / 100
-    return hoursWorked * employee.payPerHour
+const wagesEarnedOnDate = function(date) {
+    return hoursWorkedOnDate.call(this, date) * this.payPerHour
 }
 
-const calculatePayroll = (employees) => {
-    let payrollTotal = employees.reduce(function(total, employee){
-        return allWagesFor(employee) + total
-    }, 0)
-    return payrollTotal
-}
-
-const findEmployeeByFirstName = (employees, name) => {
-    return employees.find(employee => {
-        employee.firstName === name
-        return employee
-    })
-}
 
 /*
  We're giving you this function. Take a look at it, you might see some usage
@@ -96,4 +77,18 @@ let allWagesFor = function () {
     }.bind(this), 0) // <== Hm, why did we need to add bind() there? We'll discuss soon!
 
     return payable
+}
+
+const calculatePayroll = function(employees) {
+    let payrollTotal = employees.reduce(function(total, employee){
+        return allWagesFor.call(employee) + total
+    }, 0)
+    return payrollTotal
+}
+
+const findEmployeeByFirstName = function(employees, name) {
+    return employees.find(employee => {
+        employee.firstName === name
+        return employee
+    })
 }
